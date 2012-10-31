@@ -1,0 +1,8 @@
+name: WGSpawnReasonFlags
+main: de.bangl.wgsrf.WGSpawnReasonFlagsPlugin
+description: WorldGuard extension to control the spawn reasons of creatures in specific regions.
+version: 0.1
+
+authors: [ BangL, mewin ]
+depend: [ WorldGuard, WGCustomFlags ]
+softdepend: [ WorldEdit ]
