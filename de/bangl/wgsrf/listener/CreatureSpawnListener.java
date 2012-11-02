@@ -42,7 +42,7 @@ public class CreatureSpawnListener implements Listener {
         if(event.getSpawnReason() != null
                 && event.getLocation() != null) {
             // Cancel if spawn reason is denied here.
-            if (!Utils.spawnAllowedAtLocation(plugin.getWGP(), Utils.castReason(event.getSpawnReason()), event.getLocation())) {
+            if (!Utils.spawnAllowedAtLocation(this.plugin, Utils.castReason(event.getSpawnReason()), event.getLocation())) {
                 event.setCancelled(true);
             }
         }

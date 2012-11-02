@@ -18,15 +18,8 @@
 package de.bangl.wgsrf;
 
 import com.mewin.WGCustomFlags.WGCustomFlagsPlugin;
+import com.mewin.util.Util;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.plugin.Plugin;
@@ -54,85 +47,8 @@ public class Utils {
         return (WorldGuardPlugin)wg;
     }
     
-    public static boolean spawnAllowedAtLocation(WorldGuardPlugin wgp, SpawnReason reason, Location loc) {
-        RegionManager rm = wgp.getRegionManager(loc.getWorld());
-        if (rm == null) {
-            return true;
-        }
-        ApplicableRegionSet regions = rm.getApplicableRegions(loc);
-        Iterator<ProtectedRegion> itr = regions.iterator();
-        Map<ProtectedRegion, Boolean> regionsToCheck = new HashMap<>();
-        Set<ProtectedRegion> ignoredRegions = new HashSet<>();
-        
-        while(itr.hasNext()) {
-            ProtectedRegion region = itr.next();
-            
-            if (ignoredRegions.contains(region)) {
-                continue;
-            }
-            
-            Object allowed = spawnAllowedInRegion(region, reason);
-            
-            if (allowed != null) {
-                ProtectedRegion parent = region.getParent();
-                
-                while(parent != null) {
-                    ignoredRegions.add(parent);
-                    
-                    parent = parent.getParent();
-                }
-                
-                regionsToCheck.put(region, (boolean) allowed);
-            }
-        }
-        
-        if (regionsToCheck.size() >= 1) {
-            Iterator<Map.Entry<ProtectedRegion, Boolean>> itr2 = regionsToCheck.entrySet().iterator();
-            
-            while(itr2.hasNext()) {
-                Map.Entry<ProtectedRegion, Boolean> entry = itr2.next();
-                
-                ProtectedRegion region = entry.getKey();
-                boolean value = entry.getValue();
-                
-                if (ignoredRegions.contains(region)) {
-                    continue;
-                }
-                
-                if (value) { // allow > deny
-                    return true;
-                }
-            }
-            
-            return false;
-        } else {
-            ProtectedRegion global = rm.getRegion("__global__");
-            Object allowed = null;
-            if (global != null) {
-                allowed = spawnAllowedInRegion(rm.getRegion("__global__"), reason);
-            }
-            if (allowed != null) {
-                return (boolean) allowed;
-            } else {
-                return true;
-            }
-        }
-    }
-    
-    public static Object spawnAllowedInRegion(ProtectedRegion region, SpawnReason reason) {
-        HashSet<SpawnReason> allowedCauses = (HashSet<SpawnReason>) region.getFlag(WGSpawnReasonFlagsPlugin.ALLOW_SPAWNREASON_FLAG);
-        HashSet<SpawnReason> blockedCauses = (HashSet<SpawnReason>) region.getFlag(WGSpawnReasonFlagsPlugin.DENY_SPAWNREASON_FLAG);
-        
-        if (allowedCauses != null
-                && (allowedCauses.contains(reason) || allowedCauses.contains(SpawnReason.ANY))) {
-            return true;
-        }
-        else if(blockedCauses != null
-                && (blockedCauses.contains(reason) || blockedCauses.contains(SpawnReason.ANY))) {
-            return false;
-        } else {
-            return null;
-        }
+    public static boolean spawnAllowedAtLocation(WGSpawnReasonFlagsPlugin plugin, SpawnReason reason, Location loc) {
+        return Util.flagAllowedAtLocation(plugin.getWGP(), reason, loc, WGSpawnReasonFlagsPlugin.ALLOW_SPAWNREASON_FLAG, WGSpawnReasonFlagsPlugin.DENY_SPAWNREASON_FLAG, SpawnReason.ANY);
     }
     
     public static SpawnReason castReason(CreatureSpawnEvent.SpawnReason reason) {
