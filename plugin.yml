@@ -5,4 +5,4 @@ version: 0.1
 
 authors: [ BangL, mewin ]
 depend: [ WorldGuard, WGCustomFlags ]
-softdepend: [ WorldEdit ]
+softdepend: [ WorldEdit, DragonTravel ]

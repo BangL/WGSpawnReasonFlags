@@ -19,6 +19,7 @@ package de.bangl.wgsrf.listener;
 
 import de.bangl.wgsrf.Utils;
 import de.bangl.wgsrf.WGSpawnReasonFlagsPlugin;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -41,8 +42,11 @@ public class CreatureSpawnListener implements Listener {
         // Only handle if spawn reason and location is not null.
         if(event.getSpawnReason() != null
                 && event.getLocation() != null) {
-            // Cancel if spawn reason is denied here.
-            if (!Utils.spawnAllowedAtLocation(this.plugin, Utils.castReason(event.getSpawnReason()), event.getLocation())) {
+            // Cancel if spawn reason is denied here
+            if (!Utils.spawnAllowedAtLocation(this.plugin, Utils.castReason(event.getSpawnReason()), event.getLocation())
+                    //  but don't cancel DragonTravel dragons if we have DragonTravel installed.
+                    && (!this.plugin.hasDragonTravel()
+                    || !(event.getEntityType().equals(EntityType.ENDER_DRAGON) && event.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.DEFAULT)))) {
                 event.setCancelled(true);
             }
         }

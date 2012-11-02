@@ -35,34 +35,28 @@ public class WGSpawnReasonFlagsPlugin extends JavaPlugin {
     public static final CustomSetFlag ALLOW_SPAWNREASON_FLAG = new CustomSetFlag("allow-spawnreason", SPAWNREASON_FLAG);
     public static final CustomSetFlag DENY_SPAWNREASON_FLAG = new CustomSetFlag("deny-spawnreason", SPAWNREASON_FLAG);
     
-    private WGCustomFlagsPlugin pluginWGCustomFlags;
     private WorldGuardPlugin pluginWorldGuard;
-    private CreatureSpawnListener listener;
+    private boolean hasDragonTravel;
     
     public WorldGuardPlugin getWGP() {
         return pluginWorldGuard;
     }
     
-    public WGCustomFlagsPlugin getWGCFP() {
-        return pluginWGCustomFlags;
+    public boolean hasDragonTravel() {
+        return hasDragonTravel;
     }
     
     @Override
     public void onEnable() {
+        
         this.pluginWorldGuard = Utils.getWorldGuard(this);
-        this.pluginWGCustomFlags = Utils.getWGCustomFlags(this);
-        this.listener = new CreatureSpawnListener(this);
         
-        this.getServer().getPluginManager().registerEvents(this.listener, this);
+        this.hasDragonTravel = (this.getServer().getPluginManager().getPlugin("DragonTravel") != null);
         
-        this.pluginWGCustomFlags.addCustomFlag(ALLOW_SPAWNREASON_FLAG);
-        this.pluginWGCustomFlags.addCustomFlag(DENY_SPAWNREASON_FLAG);
-    }
-    
-    @Override
-    public void onDisable() {
-        this.listener = null;
-        this.pluginWGCustomFlags = null;
-        this.pluginWorldGuard = null;
+        Utils.getWGCustomFlags(this).addCustomFlag(ALLOW_SPAWNREASON_FLAG);
+        Utils.getWGCustomFlags(this).addCustomFlag(DENY_SPAWNREASON_FLAG);
+        
+        this.getServer().getPluginManager().registerEvents(new CreatureSpawnListener(this), this);
+        
     }
 }
